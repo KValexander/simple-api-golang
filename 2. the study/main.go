@@ -38,7 +38,7 @@ type Class struct {
 
 var database *sql.DB
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
+func Students(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.Query("select * from simple_api.Student")
 	if err != nil {
 		log.Println(err);
@@ -56,8 +56,14 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		students = append(students, s)
 	}
 
-	tmpl, _ := template.ParseFiles("templates/index.html")
+	tmpl, _ := template.ParseFiles("templates/students.html")
 	tmpl.Execute(w, students)
+}
+
+func Index(w http.ResponseWriter, r *http.Request) {
+    data := "Index page"
+    tmpl, _ := template.New("data").Parse("<h1>{{ .}}</h1><a href='/students'>Студенты</a>")
+    tmpl.Execute(w, data)
 }
 
 func main() {
@@ -67,7 +73,9 @@ func main() {
 	}
 	database = db
 	defer db.Close()
-	http.HandleFunc("/", IndexHandler)
+
+	http.HandleFunc("/", Index)
+	http.HandleFunc("/students", Students)
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }

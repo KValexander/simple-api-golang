@@ -6,7 +6,8 @@
 	<title>Document</title>
 </head>
 <body>
-	<h1>{{.Index}}</h1>
-	<a href="/students">Студенты</a>
+	{{range . }}
+		<p>{{.Surname}} {{.Name}} {{.Patronymic}}</p>
+	{{end}}
 </body>
 </html>
