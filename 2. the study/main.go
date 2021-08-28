@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"net/http"
@@ -9,6 +8,7 @@ import (
 	"log"
 )
 
+// Teacher struct
 type Teacher struct {
 	ID int `json:teacher_id`
 	Surname string `json:surname`
@@ -19,6 +19,7 @@ type Teacher struct {
 	Qualification string `json:qualification`
 }
 
+// Student struct
 type Student struct {
 	ID int `json:student_id`
 	Surname string `json:surname`
@@ -29,6 +30,7 @@ type Student struct {
 	ExperationDate string `json:experation_date`
 }
 
+// Class struct
 type Class struct {
 	ID int `json:class_id`
 	Name string `json:name`
@@ -39,25 +41,47 @@ type Class struct {
 var database *sql.DB
 
 func Students(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.Query("select * from simple_api.Student")
-	if err != nil {
-		log.Println(err);
-	}
-	defer rows.Close()
-	students := []Student{}
-
-	for rows.Next() {
-		s := Student{}
-		err := rows.Scan(&s.ID, &s.Surname, &s.Name, &s.Patronymic, &s.DateBirth, &s.ReceiptDate, &s.ExperationDate)
+	// Get all students
+	if r.Method == "GET" {
+		// Get all students
+		rows, err := database.Query("select * from simple_api.Student")
 		if err != nil {
-			fmt.Println(err)
-			continue
+			log.Println(err);
 		}
-		students = append(students, s)
-	}
+		defer rows.Close()
+		// Array of students
+		students := []Student{}
 
-	tmpl, _ := template.ParseFiles("templates/students.html")
-	tmpl.Execute(w, students)
+		// Append student in array
+		for rows.Next() {
+			s := Student{}
+			err := rows.Scan(&s.ID, &s.Surname, &s.Name, &s.Patronymic, &s.DateBirth, &s.ReceiptDate, &s.ExperationDate)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			students = append(students, s)
+		}
+
+		// Output of templates
+		tmpl, _ := template.ParseFiles("templates/students.html")
+		tmpl.Execute(w, students)
+	// Add student
+	} else if r.Method == "POST" {
+		// Parse form
+		err := r.ParseForm()
+		if err != nil {
+			log.Println(err)
+		}
+		// Insert data in database
+		_, err = database.Exec("insert into simple_api.Student (surname, name, patronymic, date_birth, receipt_date, expiration_date) values (?,?,?,?,?,?)",
+		r.FormValue("surname"), r.FormValue("name"), r.FormValue("patronymic"), r.FormValue("date_birth"), r.FormValue("receipt_date"), r.FormValue("expiration_date"))
+		if err != nil {
+			log.Println(err)
+		}
+		// Redirect
+		http.Redirect(w, r, "/students", 301)
+	}
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -77,5 +101,5 @@ func main() {
 	http.HandleFunc("/", Index)
 	http.HandleFunc("/students", Students)
 
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	log.Fatal(http.ListenAndServe("127.0.0.1:8000", nil))
 }
