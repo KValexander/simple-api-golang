@@ -40,6 +40,51 @@ type Class struct {
 
 var database *sql.DB
 
+func Teachers(w http.ResponseWriter, r *http.Request) {
+	// Get all teachers
+	if r.Method == "GET" {
+		// Get all students
+		rows, err := database.Query("select * from simple_api.Student")
+		if err != nil {
+			log.Println(err);
+		}
+		defer rows.Close()
+		// Array of students
+		students := []Student{}
+
+		// Append student in array
+		for rows.Next() {
+			s := Student{}
+			err := rows.Scan(&s.ID, &s.Surname, &s.Name, &s.Patronymic, &s.DateBirth, &s.ReceiptDate, &s.ExperationDate)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			students = append(students, s)
+		}
+
+		// Output of templates
+		tmpl, _ := template.ParseFiles("templates/students.html")
+		tmpl.Execute(w, students)
+	// Add teacher
+	} else if r.Method == "POST" {
+		// Parse form
+		err := r.ParseForm()
+		if err != nil {
+			log.Println(err)
+		}
+		// Insert data in database
+		_, err = database.Exec("insert into simple_api.Teacher (surname, name, patronymic, post, education, qualification) values (?,?,?,?,?,?)",
+		r.FormValue("surname"), r.FormValue("name"), r.FormValue("patronymic"), r.FormValue("date_birth"), r.FormValue("receipt_date"), r.FormValue("expiration_date"))
+		if err != nil {
+			log.Println(err)
+		}
+		// Redirect
+		http.Redirect(w, r, "/students", 301)
+	}
+
+}
+
 func Students(w http.ResponseWriter, r *http.Request) {
 	// Get all students
 	if r.Method == "GET" {
@@ -85,8 +130,8 @@ func Students(w http.ResponseWriter, r *http.Request) {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-    data := "Index page"
-    tmpl, _ := template.New("data").Parse("<h1>{{ .}}</h1><a href='/students'>Студенты</a>")
+    data := "Главная страница"
+    tmpl, _ := template.New("data").Parse("<h1>{{ .}}</h1><a href='/students'>Студенты</a> | <a href='/teachers'>Преподаватели</a>")
     tmpl.Execute(w, data)
 }
 
@@ -100,6 +145,7 @@ func main() {
 
 	http.HandleFunc("/", Index)
 	http.HandleFunc("/students", Students)
+	http.HandleFunc("/teachers", Teachers)
 
 	log.Fatal(http.ListenAndServe("127.0.0.1:8000", nil))
 }

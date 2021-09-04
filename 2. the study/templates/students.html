@@ -4,13 +4,45 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Document</title>
+	<style>
+		table {
+			background-color:  black;
+		}
+		th, td {
+			padding:  5px;
+			background-color:  white;
+		}
+	</style>
 </head>
 <body>
+	<h1>Студенты</h1>
+	<a href="/">Главная</a> |
+	<a href="/teachers">Преподаватели</a>
+	<br>
 	<h2>Все студенты</h2>
-	{{range . }}
-		<p>{{.Surname}} {{.Name}} {{.Patronymic}}</p>
-	{{end}}<br>
-
+	<table>
+		<tr>
+			<th>ID</th>
+			<th>Surname</th>
+			<th>Name</th>
+			<th>Patronymic</th>
+			<th>Date of birth</th>
+			<th>Receipt date</th>
+			<th>Expiration date</th>
+		</tr>
+		{{range . }}
+			<tr>
+				<td>{{.ID}}</td>
+				<td>{{.Surname}}</td>
+				<td>{{.Name}}</td>
+				<td>{{.Patronymic}}</td>
+				<td>{{.DateBirth}}</td>
+				<td>{{.ReceiptDate}}</td>
+				<td>{{.ExperationDate}}</td>
+			</tr>
+		{{end}}
+	</table>
+	<br>
 	<h2>Добавить студента</h2>
 	<form action="students" method="POST">
 		<input type="text" name="surname" placeholder="Фамилия"></p>
