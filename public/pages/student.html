@@ -1,0 +1,33 @@
+<h1>Студенты</h1>
+<a onclick="on_page('main.html')">Главная</a> |
+<a onclick="on_page('teacher.html')">Преподаватели</a> |
+<a onclick="on_page('class.html')">Классы</a>
+<br>
+<h2>Все Студенты</h2>
+<table>
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Surname</th>
+			<th>Name</th>
+			<th>Patronymic</th>
+			<th>Date of Birth</th>
+			<th>Receipt Date</th>
+			<th>Experation Date</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr><td align="center" colspan="7"><a onclick="get_students()">Загрузить студентов</a></td></tr>
+	</tbody>
+</table>
+<br>
+<h2>Добавить студента</h2>
+<form action="students" method="POST">
+	<input type="text" name="surname" placeholder="Фамилия"></p>
+	<input type="text" name="name" placeholder="Имя"></p>
+	<input type="text" name="patronymic" placeholder="Отчество"></p>
+	<input type="date" name="date_birth" placeholder="Дата рождения"></p>
+	<input type="date" name="receipt_date" placeholder="Дата поступления"></p>
+	<input type="date" name="expiration_date" placeholder="Дата выпуска"></p>
+	<input type="submit" value="Добавить">
+</form>
